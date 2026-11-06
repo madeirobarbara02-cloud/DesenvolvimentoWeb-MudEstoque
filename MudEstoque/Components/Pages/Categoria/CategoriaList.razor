@@ -1,0 +1,144 @@
+﻿@page "/categorias"
+@using MudEstoque.Services.Interfaces
+@using MudEstoque.Models
+@inject ICategoriaService CategoriaService
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+<PageTitle>Categorias</PageTitle>
+
+<MudText Typo="Typo.h4" GutterBottom="true">Categorias</MudText>
+
+<MudDataGrid T="Categoria" Items="_categorias" Loading="_carregando" Hover="true" Dense="true">
+    <ToolBarContent>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add"
+                   OnClick="NovaAsync">Nova categoria</MudButton>
+    </ToolBarContent>
+    <Columns>
+        <PropertyColumn Property="c => c.Nome" Title="Nome" />
+        <PropertyColumn Property="c => c.Descricao" Title="Descrição" Sortable="false" />
+        <TemplateColumn Title="Situação" Sortable="false">
+            <CellTemplate>
+                @if (context.Item.Ativo)
+                {
+                    <MudChip T="string" Color="Color.Success" Size="Size.Small">Ativa</MudChip>
+                }
+                else
+                {
+                    <MudChip T="string" Color="Color.Default" Size="Size.Small">Inativa</MudChip>
+                }
+            </CellTemplate>
+        </TemplateColumn>
+        <TemplateColumn Title="Ações" Sortable="false">
+            <CellTemplate>
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small"
+                               OnClick="() => EditarAsync(context.Item)" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error"
+                               OnClick="() => ExcluirAsync(context.Item)" />
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+    <NoRecordsContent>
+        <MudText>Nenhuma categoria cadastrada.</MudText>
+    </NoRecordsContent>
+    <PagerContent>
+        <MudDataGridPager T="Categoria" RowsPerPageString="Linhas por página:"
+                          InfoFormat="{first_item}-{last_item} de {all_items}" />
+    </PagerContent>
+</MudDataGrid>
+
+@code {
+    private List<Categoria> _categorias = new List<Categoria>();
+    private bool _carregando;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CarregarAsync();
+    }
+    //Busca as categorias no ervico, com o indicador de carregamento ligado
+    private async Task CarregarAsync()
+    {
+        _carregando = true;
+        try
+        {
+            IEnumerable<Categoria> categorias = await CategoriaService.ListarTodosAsync();
+            _categorias = categorias.ToList();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add("Erro ao carregar as categorias: " + ex.Message, Severity.Error);
+        }
+        finally
+        {
+            _carregando = false;
+        }
+    }
+    //Abrir o dialogo vazio para incluir um novo registro(Clique no botão Nova Categoria)
+    private async Task NovaAsync()
+    {
+        await AbrirDialogoAsync(0, "Nova categoria");
+
+    }
+    private async Task EditarAsync(Categoria categoria)
+    {
+        await AbrirDialogoAsync(categoria.Id, "Editar categoria");
+    }
+    // Mostra o diálogo e recarrega a lista quando o usuário salva
+    private async Task AbrirDialogoAsync(int id, string titulo)
+    {
+        DialogParameters<CategoriaDialog> parametros = new DialogParameters<CategoriaDialog>();
+        parametros.Add(d => d.Id, id);
+
+        DialogOptions opcoes = new DialogOptions
+        {
+            MaxWidth = MaxWidth.Small,
+            FullWidth = true,
+            CloseButton = true
+        };
+
+        IDialogReference dialogo = await DialogService.ShowAsync<CategoriaDialog>(titulo, parametros, opcoes);
+        DialogResult? resultado = await dialogo.Result;
+
+        if (resultado is not null && !resultado.Canceled)
+        {
+            await CarregarAsync();
+        }
+    }
+    private async Task ExcluirAsync(Categoria categoria)
+    {
+        bool? confirmou = await DialogService.ShowMessageBoxAsync(
+            "Excluir categoria",
+            $"Excluir \"{categoria.Nome}\" definitivamente?",
+            yesText: "Excluir",
+            cancelText: "Cancelar");
+
+        if (confirmou != true)
+        {
+            return;
+        }
+
+        try
+        {
+            bool excluiu = await CategoriaService.ExcluirAsync(categoria.Id);
+            if (excluiu)
+            {
+                Snackbar.Add("Categoria excluída.", Severity.Success);
+            }
+            else
+            {
+                Snackbar.Add("Esta categoria não existe mais.", Severity.Warning);
+            }
+
+            await CarregarAsync();
+        }
+        catch (InvalidOperationException ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Warning);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add("Erro inesperado: " + ex.Message, Severity.Error);
+        }
+    }
+}
+
+
