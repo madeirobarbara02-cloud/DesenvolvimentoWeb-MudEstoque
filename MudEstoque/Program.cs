@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using MudBlazor;
 using MudBlazor.Services;
 using MudEstoque.Components;
 using MudEstoque.Data;
@@ -17,8 +18,17 @@ builder.Services.AddScoped<ICategoriaService, CategoriaService>();
 builder.Services.AddScoped<IFornecedorService, FornecedorService>();
 builder.Services.AddScoped<IProdutoService, ProdutoService>();
 
-// Add MudBlazor services
-builder.Services.AddMudServices();
+// MudBlazor: configuração global de Snackbar e Dialogs
+builder.Services.AddMudServices(config =>
+{
+    config.SnackbarConfiguration.PositionClass    = Defaults.Classes.Position.BottomRight;
+    config.SnackbarConfiguration.VisibleStateDuration   = 3500;
+    config.SnackbarConfiguration.ShowTransitionDuration = 200;
+    config.SnackbarConfiguration.HideTransitionDuration = 200;
+    config.SnackbarConfiguration.PreventDuplicates      = false;
+    config.SnackbarConfiguration.NewestOnTop            = false;
+    config.SnackbarConfiguration.SnackbarVariant        = Variant.Filled;
+});
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -30,7 +40,6 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);

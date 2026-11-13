@@ -17,7 +17,7 @@ namespace MudEstoque.Services.Implementations
         public async Task<int> AdicionarAsync(Categoria categoria)
         {
             await using EstoqueDbContext contexto = await _fabrica.CreateDbContextAsync();
-            bool nomeEmUso = await contexto.Categorias.AnyAsync(c => categoria.Nome == categoria.Nome);
+            bool nomeEmUso = await contexto.Categorias.AnyAsync(c => c.Nome == categoria.Nome && c.Id != categoria.Id);
             if(nomeEmUso)
             {
                 throw new InvalidOperationException($"Já existe uma categoria chamada {categoria.Nome}");
@@ -35,7 +35,7 @@ namespace MudEstoque.Services.Implementations
             {
                 return false;
             }
-            bool nomeEmUso = await contexto.Categorias.AnyAsync(c => c.Nome == categoria.Nome);
+            bool nomeEmUso = await contexto.Categorias.AnyAsync(c => c.Nome == categoria.Nome && c.Id != categoria.Id);
             if (nomeEmUso)
             {
                 throw new InvalidOperationException($"Já existe uma categoria chamada {categoria.Nome}");

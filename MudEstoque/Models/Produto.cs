@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -13,6 +13,7 @@ namespace MudEstoque.Models
         [MaxLength(500)]
         public string? Descricao { get; set; }
         [MaxLength(50), Unicode(false)]
+        [Column("CodigoDeBarras")]
         public string? CodigoBarras { get; set; }
         [Column(TypeName = "decimal(18,2)")]
         public decimal PrecoUnitario { get; set; }

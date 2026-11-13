@@ -1,0 +1,93 @@
+/* =====================================================
+   MudEstoque — Global CSS
+   Complementa os estilos do MudBlazor sem sobrescrevê-los
+   ===================================================== */
+
+/* --- Transição suave ao alternar temas apenas em containers estruturais --- */
+body, .mud-layout, .mud-appbar, .mud-drawer, .mud-paper, .mud-card, .mud-dialog {
+    transition: background-color 0.25s ease, border-color 0.25s ease, color 0.15s ease;
+}
+
+/* --- Scrollbar personalizada (Chrome/Edge) --- */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--mud-palette-lines-default);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--mud-palette-action-default);
+}
+
+/* --- Blazor Error UI --- */
+#blazor-error-ui {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    padding: 10px 16px;
+    background: var(--mud-palette-error);
+    color: var(--mud-palette-error-contrasttext, #fff);
+    font-size: 0.85rem;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+}
+
+#blazor-error-ui[style*="display"] {
+    display: flex !important;
+}
+
+#blazor-error-ui .reload {
+    color: inherit;
+    font-weight: 600;
+    text-decoration: underline;
+    margin-left: 8px;
+}
+
+#blazor-error-ui .dismiss {
+    cursor: pointer;
+    margin-left: 16px;
+    opacity: 0.8;
+}
+
+/* --- DataGrid: densidade compacta nos headers --- */
+.mud-table-head .mud-table-cell {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--mud-palette-text-secondary);
+}
+
+/* --- Chips compactos nas listas --- */
+.mud-chip.mud-chip-size-small {
+    font-size: 0.7rem;
+    height: 22px;
+}
+
+/* --- NavMenu: seção de grupo --- */
+.nav-section-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 12px 16px 4px 16px;
+    display: block;
+}
+
+/* --- Diálogos e Modais: bordas arredondadas modernas --- */
+.mud-dialog {
+    border-radius: 8px !important;
+    border: 1px solid var(--mud-palette-divider);
+}

@@ -1,0 +1,205 @@
+@page "/fornecedores"
+@inject IFornecedorService FornecedorService
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<PageTitle>Fornecedores — MudEstoque</PageTitle>
+
+<MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-4" Spacing="2">
+    <MudStack Spacing="0" Style="flex:1;">
+        <MudText Typo="Typo.h5">Fornecedores</MudText>
+        <MudText Typo="Typo.body2" Color="Color.Secondary">
+            Gerencie os parceiros e fornecedores de produtos da empresa.
+        </MudText>
+    </MudStack>
+    <MudButton Variant="Variant.Filled"
+               Color="Color.Primary"
+               Size="Size.Small"
+               StartIcon="@Icons.Material.Filled.Add"
+               OnClick="NovaAsync">
+        Novo fornecedor
+    </MudButton>
+</MudStack>
+
+<MudDataGrid T="Fornecedor"
+             Items="_fornecedores"
+             Loading="_carregando"
+             Hover="true"
+             Dense="true"
+             Striped="true"
+             Elevation="0"
+             Style="border: 1px solid var(--mud-palette-divider); border-radius: 8px; overflow:hidden;"
+             SortMode="SortMode.Single"
+             Filterable="false">
+
+    <Columns>
+        <PropertyColumn Property="f => f.RazaoSocial" Title="Razão Social" />
+        <PropertyColumn Property="f => f.CNPJ" Title="CNPJ" CellStyle="width:160px;" />
+        <PropertyColumn Property="f => f.Telefone" Title="Telefone" Sortable="false" CellStyle="width:140px;" />
+        <PropertyColumn Property="f => f.Email" Title="E-mail" Sortable="false" />
+        <TemplateColumn Title="Situação" Sortable="false" CellStyle="width:110px;">
+            <CellTemplate>
+                @if (context.Item.Ativo)
+                {
+                    <MudChip T="string"
+                             Color="Color.Success"
+                             Size="Size.Small"
+                             Variant="Variant.Filled"
+                             Style="height:20px; font-size:.7rem;">
+                        Ativo
+                    </MudChip>
+                }
+                else
+                {
+                    <MudChip T="string"
+                             Color="Color.Default"
+                             Size="Size.Small"
+                             Variant="Variant.Filled"
+                             Style="height:20px; font-size:.7rem;">
+                        Inativo
+                    </MudChip>
+                }
+            </CellTemplate>
+        </TemplateColumn>
+        <TemplateColumn Title="" Sortable="false" CellStyle="width:88px; text-align:right;">
+            <CellTemplate>
+                <MudTooltip Text="Editar fornecedor">
+                    <MudIconButton Icon="@Icons.Material.Outlined.Edit"
+                                   Size="Size.Small"
+                                   Color="Color.Primary"
+                                   OnClick="() => EditarAsync(context.Item)" />
+                </MudTooltip>
+                <MudTooltip Text="Excluir fornecedor">
+                    <MudIconButton Icon="@Icons.Material.Outlined.Delete"
+                                   Size="Size.Small"
+                                   Color="Color.Error"
+                                   OnClick="() => ExcluirAsync(context.Item)" />
+                </MudTooltip>
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+
+    <NoRecordsContent>
+        <MudStack AlignItems="AlignItems.Center" Class="py-8" Spacing="2">
+            <MudIcon Icon="@Icons.Material.Outlined.BusinessCenter"
+                     Size="Size.Large"
+                     Color="Color.Secondary"
+                     Style="font-size:3rem;" />
+            <MudText Typo="Typo.body1" Color="Color.Secondary">
+                Nenhum fornecedor cadastrado.
+            </MudText>
+            <MudButton Variant="Variant.Text"
+                       Color="Color.Primary"
+                       Size="Size.Small"
+                       StartIcon="@Icons.Material.Filled.Add"
+                       OnClick="NovaAsync">
+                Cadastrar primeiro fornecedor
+            </MudButton>
+        </MudStack>
+    </NoRecordsContent>
+
+    <LoadingContent>
+        <MudStack AlignItems="AlignItems.Center" Class="py-6">
+            <MudProgressCircular Color="Color.Primary" Size="Size.Small" Indeterminate="true" />
+            <MudText Typo="Typo.body2" Color="Color.Secondary">Carregando...</MudText>
+        </MudStack>
+    </LoadingContent>
+
+    <PagerContent>
+        <MudDataGridPager T="Fornecedor"
+                          RowsPerPageString="Por página:"
+                          InfoFormat="{first_item}-{last_item} de {all_items}" />
+    </PagerContent>
+</MudDataGrid>
+
+@code {
+    private List<Fornecedor> _fornecedores = [];
+    private bool _carregando;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CarregarAsync();
+    }
+
+    private async Task CarregarAsync()
+    {
+        _carregando = true;
+        try
+        {
+            IEnumerable<Fornecedor> fornecedores = await FornecedorService.ListarTodosAsync();
+            _fornecedores = fornecedores.ToList();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add("Erro ao carregar os fornecedores: " + ex.Message, Severity.Error);
+        }
+        finally
+        {
+            _carregando = false;
+        }
+    }
+
+    private async Task NovaAsync()
+    {
+        await AbrirDialogoAsync(0, "Novo fornecedor");
+    }
+
+    private async Task EditarAsync(Fornecedor fornecedor)
+    {
+        await AbrirDialogoAsync(fornecedor.Id, "Editar fornecedor");
+    }
+
+    private async Task AbrirDialogoAsync(int id, string titulo)
+    {
+        DialogParameters<FornecedorDialog> parametros = new()
+        {
+            { d => d.Id, id }
+        };
+
+        DialogOptions opcoes = new()
+        {
+            MaxWidth = MaxWidth.Medium,
+            FullWidth = true,
+            CloseButton = true,
+            BackdropClick = false
+        };
+
+        IDialogReference dialogo = await DialogService.ShowAsync<FornecedorDialog>(titulo, parametros, opcoes);
+        DialogResult? resultado = await dialogo.Result;
+
+        if (resultado is not null && !resultado.Canceled)
+        {
+            await CarregarAsync();
+        }
+    }
+
+    private async Task ExcluirAsync(Fornecedor fornecedor)
+    {
+        bool? confirmou = await DialogService.ShowMessageBoxAsync(
+            "Excluir fornecedor",
+            $"Excluir \"{fornecedor.RazaoSocial}\" definitivamente? Esta ação não pode ser desfeita.",
+            yesText: "Excluir",
+            cancelText: "Cancelar");
+
+        if (confirmou != true) return;
+
+        try
+        {
+            bool excluiu = await FornecedorService.ExcluirAsync(fornecedor.Id);
+            Snackbar.Add(excluiu
+                ? "Fornecedor excluído com sucesso."
+                : "Este fornecedor não existe mais.",
+                excluiu ? Severity.Success : Severity.Warning);
+
+            await CarregarAsync();
+        }
+        catch (InvalidOperationException ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Warning);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add("Erro inesperado ao excluir: " + ex.Message, Severity.Error);
+        }
+    }
+}

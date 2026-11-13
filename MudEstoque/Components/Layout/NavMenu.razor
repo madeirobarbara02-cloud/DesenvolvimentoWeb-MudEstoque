@@ -1,10 +1,42 @@
-﻿
-<MudNavMenu>
-    <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
-    <MudNavLink Href="categorias" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Add">Categorias</MudNavLink>
-    
-    <MudNavLink Href="weather" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.List">Weather</MudNavLink>
+<MudNavMenu Dense="true">
+
+    <MudNavLink Href="/" Match="NavLinkMatch.All"
+                Icon="@Icons.Material.Filled.Dashboard">
+        Painel
+    </MudNavLink>
+
+    <MudDivider Class="my-2" />
+
+    <MudText Typo="Typo.caption" Color="Color.Secondary" Class="nav-section-label">
+        Cadastros
+    </MudText>
+
+    <MudNavLink Href="categorias" Match="NavLinkMatch.Prefix"
+                Icon="@Icons.Material.Filled.Category">
+        Categorias
+    </MudNavLink>
+
+    <MudNavLink Href="fornecedores" Match="NavLinkMatch.Prefix"
+                Icon="@Icons.Material.Filled.BusinessCenter">
+        Fornecedores
+    </MudNavLink>
+
+    <MudNavLink Href="produtos" Match="NavLinkMatch.Prefix"
+                Icon="@Icons.Material.Filled.Inventory"
+                Disabled="true">
+        Produtos
+    </MudNavLink>
+
+    <MudDivider Class="my-2" />
+
+    <MudText Typo="Typo.caption" Color="Color.Secondary" Class="nav-section-label">
+        Estoque
+    </MudText>
+
+    <MudNavLink Href="movimentacoes" Match="NavLinkMatch.Prefix"
+                Icon="@Icons.Material.Filled.SwapVert"
+                Disabled="true">
+        Movimentações
+    </MudNavLink>
 
 </MudNavMenu>
-
-
